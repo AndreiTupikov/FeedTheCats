@@ -3,7 +3,7 @@ using UnityEngine;
 public class DrawTrack : MonoBehaviour
 {
     public LineRenderer lineRenderer;
-    public SphereCollider finish;
+    public CircleCollider2D finish;
     public float trackDistance;
     public bool prepared;
     private GameObject manager;
@@ -24,8 +24,9 @@ public class DrawTrack : MonoBehaviour
         }
         if (Input.GetMouseButtonUp(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (!Physics.Raycast(ray, out RaycastHit hit) || hit.transform.GetComponent<SphereCollider>() != finish)
+            Vector2 point = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(point, Vector2.zero);
+            if (hit.collider == null || hit.transform.GetComponent<CircleCollider2D>() != finish)
             {
                 lineRenderer.positionCount = 0;
                 trackDistance = 0;
