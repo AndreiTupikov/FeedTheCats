@@ -1,5 +1,7 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,6 +9,8 @@ public class GameManager : MonoBehaviour
     public int prepared = 0;
     public int finished = 0;
     public GameObject catsFight;
+    public GameObject winPanel;
+    public GameObject losePanel;
     private bool raseStarted = false;
 
     private void Update()
@@ -47,25 +51,40 @@ public class GameManager : MonoBehaviour
     public void CatsFight(GameObject cat1, GameObject cat2)
     {
         Vector2 position = new Vector2((cat1.transform.position.x + cat2.transform.position.x)/2, (cat1.transform.position.y + cat2.transform.position.y) / 2);
-        Instantiate(catsFight, position, Quaternion.identity);
+        var fight = Instantiate(catsFight, position, Quaternion.identity);
+        Destroy(fight, 5);
         foreach (var cat in cats)
         {
             if (cat == null || cat == cat1 || cat == cat2) continue;
             cat.GetComponent<Animator>().SetBool("Run", false);
             cat.GetComponent<CatMovement>().enabled = false;
         }
+        losePanel.SetActive(true);
     }
 
     public void RaceFinish()
     {
         if (finished == cats.Length)
         {
-            Debug.Log("Finish");
+            winPanel.SetActive(true);
         }
+    }
+
+    public void NextLevel()
+    {
+        string nextLevel = "Level " + (int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]) + 1);
+        int sceneIndex = SceneUtility.GetBuildIndexByScenePath(nextLevel);
+        if (sceneIndex < 0) ReturnToMenu();
+        else SceneManager.LoadScene(nextLevel);
+    }
+
+    public void Replay()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void ReturnToMenu()
     {
-        Debug.Log("Return To Menu");
+        SceneManager.LoadScene("Main Menu");
     }
 }
