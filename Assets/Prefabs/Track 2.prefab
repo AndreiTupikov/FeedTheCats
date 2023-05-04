@@ -352,7 +352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   track: {fileID: 2323856575845475399}
-  speed: 5
+  speed: 8
   fullDistance: 0
   donePart: 0
   others: []

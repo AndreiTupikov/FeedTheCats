@@ -59,6 +59,9 @@ public class CatMovement : MonoBehaviour
         {
             manager.GetComponent<GameManager>().CatsFight(gameObject, collision.gameObject);
             Destroy(gameObject);
+        } else if (collision.CompareTag("Wall"))
+        {
+            manager.GetComponent<GameManager>().Crash(gameObject);
         }
     }
 }

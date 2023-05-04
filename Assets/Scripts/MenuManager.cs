@@ -5,7 +5,10 @@ public class MenuManager : MonoBehaviour
 {
     public void Play()
     {
-        SceneManager.LoadScene("Level 1");
+        string nextLevel = "Level " + (DataHolder.passedLevel + 1);
+        int sceneIndex = SceneUtility.GetBuildIndexByScenePath(nextLevel);
+        if (sceneIndex < 0) SceneManager.LoadScene("Level " + DataHolder.passedLevel);
+        else SceneManager.LoadScene(nextLevel);
     }
 
     public void Settings()

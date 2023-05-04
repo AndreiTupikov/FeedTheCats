@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +11,7 @@ public class GameManager : MonoBehaviour
     public int prepared = 0;
     public int finished = 0;
     public GameObject catsFight;
+    public GameObject stars;
     public GameObject winPanel;
     public GameObject losePanel;
     private bool raseStarted = false;
@@ -52,13 +55,34 @@ public class GameManager : MonoBehaviour
     {
         Vector2 position = new Vector2((cat1.transform.position.x + cat2.transform.position.x)/2, (cat1.transform.position.y + cat2.transform.position.y) / 2);
         var fight = Instantiate(catsFight, position, Quaternion.identity);
-        Destroy(fight, 5);
+        Destroy(fight, 10);
+        StopCats();
+        StartCoroutine(Lose());
+    }
+
+    public void Crash(GameObject cat)
+    {
+        Vector2 position = cat.transform.position;
+        position.y += 0.3f;
+        Instantiate(stars, position, Quaternion.identity);
+        StopCats();
+        StartCoroutine(Lose());
+    }
+
+    private void StopCats()
+    {
         foreach (var cat in cats)
         {
-            if (cat == null || cat == cat1 || cat == cat2) continue;
+            if (cat == null) continue;
             cat.GetComponent<Animator>().SetBool("Run", false);
             cat.GetComponent<CatMovement>().enabled = false;
         }
+    }
+
+
+    private IEnumerator Lose()
+    {
+        yield return new WaitForSeconds(1);
         losePanel.SetActive(true);
     }
 
@@ -67,6 +91,7 @@ public class GameManager : MonoBehaviour
         if (finished == cats.Length)
         {
             winPanel.SetActive(true);
+            DataHolder.passedLevel = int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]);
         }
     }
 
