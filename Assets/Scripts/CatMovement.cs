@@ -7,9 +7,9 @@ public class CatMovement : MonoBehaviour
     public float fullDistance;
     public float donePart = 0;
     public GameObject[] others;
-    private float speedCorrection = 1;
     private int currentPosition = 0;
     private GameObject manager;
+    private GameObject leader;
 
     private void Start()
     {
@@ -17,23 +17,33 @@ public class CatMovement : MonoBehaviour
         gameObject.GetComponent<Animator>().SetBool("Run", true);
         transform.position = track.GetPosition(currentPosition);
         currentPosition++;
+        foreach (GameObject other in others)
+        {
+            if (leader == null || leader.GetComponent<CatMovement>().fullDistance < other.GetComponent<CatMovement>().fullDistance) leader = other;
+        }
+        if (leader.GetComponent<CatMovement>().fullDistance > fullDistance) leader = null; 
     }
 
     private void Update()
     {
         if (currentPosition < track.positionCount)
         {
-            foreach (var other in others)
+            if (leader!= null)
             {
-                if (donePart + 0.05f < other.GetComponent<CatMovement>().donePart)
+                if (leader.GetComponent<CatMovement>().donePart - donePart > 0.01f)
                 {
-                    speedCorrection = 2f;
-                    break;
+                    float leaderDonePart = leader.GetComponent<CatMovement>().donePart;
+                    while (true)
+                    {
+                        if (leaderDonePart - donePart < 0.05f || donePart > 1 || currentPosition >= track.positionCount - 2) break;
+                        donePart += Vector2.Distance(track.GetPosition(currentPosition - 1), track.GetPosition(currentPosition)) / fullDistance;
+                        currentPosition++;
+                    }
+                    transform.position = track.GetPosition(currentPosition);
                 }
             }
-            transform.position = Vector2.Lerp(transform.position, track.GetPosition(currentPosition), Time.deltaTime * speed * speedCorrection);
-            speedCorrection = 1;
-            if (Vector2.Distance(transform.position, track.GetPosition(currentPosition)) < 0.1f)
+            transform.position = Vector2.MoveTowards(transform.position, track.GetPosition(currentPosition), speed * Time.deltaTime);
+            if (Vector2.Distance(transform.position, track.GetPosition(currentPosition)) < 0.05f)
             {
                 donePart += Vector2.Distance(track.GetPosition(currentPosition - 1), track.GetPosition(currentPosition)) / fullDistance;
                 currentPosition++;

@@ -14,7 +14,13 @@ public class GameManager : MonoBehaviour
     public GameObject stars;
     public GameObject winPanel;
     public GameObject losePanel;
+    public AudioSource music;
     private bool raseStarted = false;
+
+    private void Awake()
+    {
+        if (!DataHolder.musicOn) music.enabled = false;
+    }
 
     private void Update()
     {
@@ -55,6 +61,7 @@ public class GameManager : MonoBehaviour
     {
         Vector2 position = new Vector2((cat1.transform.position.x + cat2.transform.position.x)/2, (cat1.transform.position.y + cat2.transform.position.y) / 2);
         var fight = Instantiate(catsFight, position, Quaternion.identity);
+        if (!DataHolder.soundsOn) fight.GetComponent<AudioSource>().enabled = false;
         Destroy(fight, 10);
         StopCats();
         StartCoroutine(Lose());
@@ -79,6 +86,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void RaceFinish()
+    {
+        if (finished == cats.Length)
+        {
+            DataHolder.passedLevel = int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]);
+            StartCoroutine(Win());
+        }
+    }
+
+    private IEnumerator Win()
+    {
+        yield return new WaitForSeconds(1);
+        winPanel.SetActive(true);
+    }
 
     private IEnumerator Lose()
     {
@@ -86,17 +107,9 @@ public class GameManager : MonoBehaviour
         losePanel.SetActive(true);
     }
 
-    public void RaceFinish()
-    {
-        if (finished == cats.Length)
-        {
-            winPanel.SetActive(true);
-            DataHolder.passedLevel = int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]);
-        }
-    }
-
     public void NextLevel()
     {
+        if (DataHolder.soundsOn) gameObject.GetComponent<AudioSource>().Play();
         string nextLevel = "Level " + (int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]) + 1);
         int sceneIndex = SceneUtility.GetBuildIndexByScenePath(nextLevel);
         if (sceneIndex < 0) ReturnToMenu();
@@ -105,11 +118,13 @@ public class GameManager : MonoBehaviour
 
     public void Replay()
     {
+        if (DataHolder.soundsOn) gameObject.GetComponent<AudioSource>().Play();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void ReturnToMenu()
     {
+        if (DataHolder.soundsOn) gameObject.GetComponent<AudioSource>().Play();
         SceneManager.LoadScene("Main Menu");
     }
 }
